@@ -1,7 +1,8 @@
 DONE	Fix collision detection on right side of character
 DONE	Add Jumping
 DONE	Add support for multiple platforms and characters to level
-	Add Controller Support
+DONE	Add Controller Support
+	Add Joystick Support
 	Add second player
 	Add Wall-jumping
 DONE	Fix fast falling collisions

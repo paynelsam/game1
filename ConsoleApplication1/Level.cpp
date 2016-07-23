@@ -23,8 +23,8 @@ void render_rectangle(SDL_Renderer* renderer, float x, float y, float width, flo
 	glEnd(); //done defining shape
 }
 
-void Character::render(SDL_Renderer* renderer){
-	render_rectangle(renderer, position_x, position_y, width, height, 255, 150, 150, 255);
+void Character::render(SDL_Renderer* renderer, float camera_position){
+	render_rectangle(renderer, position_x - camera_position, position_y, width, height, 255, 150, 150, 255);
 };
 
 void Character::update(float dt) {
@@ -43,13 +43,13 @@ void Player::update(float dt) {
 		x_velocity = move_velocity;
 	else
 		x_velocity = 0;
-
+	//if (keybinding.move_right_down)
+	//	printf("rt down\n");
 	if(keybinding.jump_down_event) {
 		if (double_jumping)
 			goto jumping_done;
 		else if (jumping) {
 			double_jumping = true;
-			printf("double jumping\n");
 		} else {
 			jumping = true;
 		}
@@ -61,8 +61,8 @@ jumping_done:
 	return;
 }
 
-void Platform::render(SDL_Renderer* renderer) {
-	render_rectangle(renderer, position_x, position_y, width, height, 150, 150, 150, 255);
+void Platform::render(SDL_Renderer* renderer, float camera_position) {
+	render_rectangle(renderer, position_x - camera_position, position_y, width, height, 150, 150, 150, 255);
 }
 Collision2D Platform::check_collision(Character* character) {
 	float bx = position_x;
@@ -200,46 +200,81 @@ Collision2D Platform::find_line_intersect (float x1, float y1, float x0, float y
 
 int Level::update(float dt) {
 	/* reset events for players */
-	for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
-		player->keybinding.jump_down_event = false;
+	for (std::vector<Player*>::iterator player = players.begin(); player != players.end(); player++) {
+		(*player)->keybinding.jump_down_event = false;
 	}
 	/* poll keybindings for each player and update */
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
 		if(event.type == SDL_QUIT)
 			return -1;
-		for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
-			player->keybinding.handle_input(event);
+		for (std::vector<Player*>::iterator player = players.begin(); player != players.end(); player++) {
+			(*player)->keybinding.handle_input(event);
 		}
 	}
 
 	/* perform global updates */
-	for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
-		player->y_velocity += gravity * dt;
+	for (std::vector<Player*>::iterator player = players.begin(); player != players.end(); player++) {
+		(*player)->y_velocity += gravity * dt;
 		/* perform non-static updates */
-		player->update(dt);
+		(*player)->update(dt);
 	}
 
 	/* check for static to non-static collisions */
-	for (std::vector<Platform>::iterator platform = platforms.begin(); platform != platforms.end(); platform++) {
-		for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
-			Collision2D c = platform->check_collision(&(*player));
+	for (std::vector<Platform*>::iterator platform = platforms.begin(); platform != platforms.end(); platform++) {
+		for (std::vector<Player*>::iterator player = players.begin(); player != players.end(); player++) {
+			Collision2D c = (*platform)->check_collision((*player));
 			if(c.collision) {
-				player->y_velocity = player->y_velocity < 5 ? player->y_velocity : 5;
+				(*player)->y_velocity = (*player)->y_velocity < 5 ? (*player)->y_velocity : 5;
 			}
 		}
 	}
 
-	/* check for sprite to non-static collisions */
-
-	return 0;
-}
-
-void Level::render(SDL_Renderer* renderer) {
-	for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
-		player->render(renderer);
+	/* keep players on screen 
+	bool skip_camera_update = false;
+	for (std::vector<Player*>::iterator player = players.begin(); player != players.end(); player++) {
+	if((*player)->position_x < camera_position) {
+	(*player)->position_x = camera_position;
+	skip_camera_update = true;
 	}
-	for (std::vector<Platform>::iterator platform = platforms.begin(); platform != platforms.end(); platform++) {
-		platform->render(renderer);
+	if((*player)->position_x > camera_position + METERS_PER_WINDOW_WIDTH) {
+	(*player)->position_x = camera_position + METERS_PER_WINDOW_WIDTH;
+	skip_camera_update = true;
 	}
-}
+	}*/
+
+	/* update camera position */
+	float avg_position = 0;
+	int player_count = 0;
+	for (std::vector<Player*>::iterator player = players.begin(); player != players.end(); player++) {
+		avg_position += (*player)->position_x + (*player)->width/2;
+		player_count++;
+	}
+	avg_position /= player_count;
+	camera_position = avg_position - (float)METERS_PER_WINDOW_WIDTH/3;
+	for (std::vector<Player*>::iterator player = players.begin(); player != players.end(); player++) {
+		if((*player)->position_x < camera_position) {
+			camera_position = (*player)->position_x;
+		}
+	}
+	for (std::vector<Player*>::iterator player = players.begin(); player != players.end(); player++) {
+		if((*player)->position_x + (*player)->width > camera_position + METERS_PER_WINDOW_WIDTH) {
+			(*player)->position_x = camera_position + METERS_PER_WINDOW_WIDTH - (*player)->width;
+		}
+	}
+
+
+
+		/* check for sprite to non-static collisions */
+
+		return 0;
+	}
+
+	void Level::render(SDL_Renderer* renderer) {
+		for (std::vector<Player*>::iterator player = players.begin(); player != players.end(); player++) {
+			(*player)->render(renderer, camera_position);
+		}
+		for (std::vector<Platform*>::iterator platform = platforms.begin(); platform != platforms.end(); platform++) {
+			(*platform)->render(renderer, camera_position);
+		}
+	}
