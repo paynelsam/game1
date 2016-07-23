@@ -97,7 +97,7 @@ public:
 	void render(void) {
 		render_rectangle(position_x, position_y, width, height, 150, 150, 150, 255);
 	}
-	Collision2D check_collision(Player* player) {
+	Collision2D check_collision(Character* player) {
 		float bx = position_x;
 		float by = position_y;
 		float bw = width;
@@ -178,18 +178,28 @@ public:
 		//XXX: assumes we cannot intersect at 0
 		if (y4 == y3) {
 			target_y = y4;
-			if (!(target_y <= y1 && target_y >= y2))
+			if (y1 > y2 && !(target_y <= y1 && target_y >= y2))
 				return ret;
+			if (y1 < y2 && !(target_y >= y1 && target_y <= y2))
+				return ret;
+			
 			ret.x = x1 + m1 * (target_y - y2);
-			if (ret.x >= x3 && ret.x <= x4)
+			if (x3 < x4 && ret.x >= x3 && ret.x <= x4)
+				ret.collision = true;
+			if (x3 > x4 && ret.x <= x3 && ret.x >= x4)
 				ret.collision = true;
 		}	
 		else if(x4 == x3) {
 			target_x = x4;
-			if (!(target_x >= x1 && target_x <= x2))
+			if (x1 < x2 && !(target_x >= x1 && target_x <= x2))
 				return ret;
+			if (x1 > x2 && !(target_x <= x1 && target_x >= x2))
+				return ret;
+			
 			ret.y = y1 + m1 * (target_x - x2);
-			if (ret.y >= y3 && ret.y <= y4)
+			if (y3 < y4 && ret.y >= y3 && ret.y <= y4)
+				ret.collision = true;
+			if (y3 > y4 && ret.y <= y3 && ret.y >= y4)
 				ret.collision = true;
 		}
 
@@ -207,16 +217,15 @@ public:
 
 Keyboard keyboard1;
 
-#define COLLISION_ADJUST 10.0;
 class Level {
 public:
 	Player player1;
 	Player player2;
 	Platform platform1;
 	float gravity;
-	Level() : gravity(9.8), platform1(10, METERS_PER_WINDOW_HEIGHT - 10, 50, 10) {
-	player1.position_x = METERS_PER_WINDOW_WIDTH/2;
-	player1.position_y = METERS_PER_WINDOW_HEIGHT/2;
+	Level() : gravity((float)9.8), platform1(10, METERS_PER_WINDOW_HEIGHT - 10, 50, 10) {
+	player1.position_x = (float)METERS_PER_WINDOW_WIDTH/2;
+	player1.position_y = (float)METERS_PER_WINDOW_HEIGHT/2;
 	
 	}
 
