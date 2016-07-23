@@ -92,9 +92,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		/* adjust matrix to window dimensions */
 		glOrtho(0, METERS_PER_WINDOW_WIDTH, METERS_PER_WINDOW_HEIGHT, 0, -1, 1);
 
-		level1.player1.render();
-		level1.platform1.render();
-		level1.platform2.render();
+		level1.render();
 
 #if 0
 		glBegin(GL_LINES); //GL_POINT, GL_LINE, GL_LINE_STRIP, GL_LINE_LOOP, GL_QUADS, GL_TRIANGLES, GL_POLLYGON

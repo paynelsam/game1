@@ -191,24 +191,32 @@ Collision2D Platform::find_line_intersect (float x1, float y1, float x2, float y
 
 void Level::update(Keyboard keyboard, float dt) {
 	/* perform global updates */
-	player1.y_velocity += gravity * dt;
-
-	/* perform non-static updates */
-	player1.update(keyboard, dt);
+	for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
+		player->y_velocity += gravity * dt;
+		/* perform non-static updates */
+		player->update(keyboard, dt);
+	}
 
 	/* check for static to non-static collisions */
-	Collision2D c = platform1.check_collision(&player1);
-	if(c.collision) {
-		player1.double_jumping = false;
-		player1.jumping = false;
-		player1.y_velocity = player1.y_velocity < 5 ? player1.y_velocity : 5;
-	}
-	c = platform2.check_collision(&player1);
-	if(c.collision) {
-		player1.double_jumping = false;
-		player1.jumping = false;
-		player1.y_velocity = player1.y_velocity < 5 ? player1.y_velocity : 5;
+	for (std::vector<Platform>::iterator platform = platforms.begin(); platform != platforms.end(); platform++) {
+		for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
+			Collision2D c = platform->check_collision(&(*player));
+			if(c.collision) {
+				player->double_jumping = false;
+				player->jumping = false;
+				player->y_velocity = player->y_velocity < 5 ? player->y_velocity : 5;
+			}
+		}
 	}
 
 	/* check for sprite to non-static collisions */
+}
+
+void Level::render(void) {
+	for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
+		player->render();
+	}
+	for (std::vector<Platform>::iterator platform = platforms.begin(); platform != platforms.end(); platform++) {
+		platform->render();
+	}
 }
