@@ -94,6 +94,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		level1.player1.render();
 		level1.platform1.render();
+		level1.platform2.render();
 
 #if 0
 		glBegin(GL_LINES); //GL_POINT, GL_LINE, GL_LINE_STRIP, GL_LINE_LOOP, GL_QUADS, GL_TRIANGLES, GL_POLLYGON

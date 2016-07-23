@@ -81,6 +81,7 @@ public:
 	}
 	void render(void);
 	Collision2D check_collision(Character* player);
+	Collision2D find_point_intersect(float x, float y);
 	Collision2D find_line_intersect (float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
 };
 
@@ -89,8 +90,11 @@ public:
 	Player player1;
 	Player player2;
 	Platform platform1;
+	Platform platform2;
+
 	float gravity;
-	Level() : gravity((float)100), platform1(10, METERS_PER_WINDOW_HEIGHT - 10, 50, 10) {
+
+	Level() : gravity((float)100), platform1(10, METERS_PER_WINDOW_HEIGHT - 10, 50, 1), platform2(10, 10, 1, 100) {
 		player1.position_x = (float)METERS_PER_WINDOW_WIDTH/2;
 		player1.position_y = (float)METERS_PER_WINDOW_HEIGHT/2;
 	}
