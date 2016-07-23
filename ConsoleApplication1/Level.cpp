@@ -3,6 +3,7 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "Level.h"
+#include "Input.h"
 
 void render_rectangle(float x, float y, float width, float height, unsigned char R, unsigned char G, unsigned char B, unsigned char A) {
 	glBegin(GL_QUADS); //GL_POINT, GL_LINE, GL_LINE_STRIP, GL_LINE_LOOP, GL_QUADS, GL_TRIANGLES, GL_POLLYGON
@@ -139,7 +140,14 @@ Collision2D Platform::find_line_intersect (float x1, float y1, float x2, float y
 	return ret;
 }
 
-void Level::update(float dt) {
+void Level::update(Keyboard keyboard, float dt) {
+	if(keyboard.key_left_down && !keyboard.key_right_down) 
+		player1.x_velocity = -1 * player1.move_velocity;
+	else if(keyboard.key_right_down && !keyboard.key_left_down)
+		player1.x_velocity = player1.move_velocity;
+	else
+		player1.x_velocity = 0;
+
 	/* perform global updates */
 	player1.y_velocity += gravity * dt;
 

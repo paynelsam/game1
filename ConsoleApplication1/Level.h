@@ -3,7 +3,10 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "Common.h"
+#include "Input.h"
 
+#ifndef HEADER_LEVEL
+#define HEADER_LEVEL
 
 class Point2D {
 public:
@@ -80,5 +83,7 @@ public:
 		player1.position_y = (float)METERS_PER_WINDOW_HEIGHT/2;
 	}
 
-	void update(float dt);
+	void update(Keyboard keyboard, float dt);
 };
+
+#endif

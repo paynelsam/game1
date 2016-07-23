@@ -7,14 +7,7 @@
 #include "SDL_opengl.h"
 #include "Level.h"
 #include "Common.h"
-
-class Keyboard {
-public:
-	bool key_right_down;
-	bool key_left_down;
-	bool key_up_down;
-	Keyboard() : key_right_down(false), key_left_down(false) {}
-};
+#include "Input.h"
 
 Keyboard keyboard1;
 
@@ -73,52 +66,14 @@ int _tmain(int argc, _TCHAR* argv[])
 			/* if exit, exit */
 			if(event.type == SDL_QUIT)
 				isRunning = false;
-			if(event.type == SDL_KEYUP) {
-				switch (event.key.keysym.sym) {
-				case SDLK_ESCAPE: 
-					isRunning = false;
-					break;
-				case SDLK_r:
-					glClearColor(1,0,0,1); //white
-					break;
-				case SDLK_RIGHT:
-					keyboard1.key_right_down = false;
-					break; 
-				case SDLK_LEFT:
-					keyboard1.key_left_down = false;
-					break; 
-				case SDLK_UP:
-					keyboard1.key_up_down = false;
-					break;
-				}
-			}
-			if(event.type == SDL_KEYDOWN) {
-				switch (event.key.keysym.sym) {
-				case SDLK_RIGHT:
-					keyboard1.key_right_down = true;
-					break; 
-				case SDLK_LEFT:
-					keyboard1.key_left_down = true;
-					break; 
-				case SDLK_UP:
-					keyboard1.key_up_down = true;
-					break;
-				}
+			if(event.type == SDL_KEYUP || event.type == SDL_KEYDOWN) {
+				keyboard1.handle_input(event);
 			}
 		}
 		/********************************************************
 		* game state updates - all units in meters
 		********************************************************/
-		if(keyboard1.key_left_down && !keyboard1.key_right_down) 
-			level1.player1.x_velocity = -1 * level1.player1.move_velocity;
-		else
-		if(keyboard1.key_right_down && !keyboard1.key_left_down)
-			level1.player1.x_velocity = level1.player1.move_velocity;
-		else
-			level1.player1.x_velocity = 0;
-
-
-		level1.update(delta_t);
+		level1.update(keyboard1, delta_t);
 
 		/*** collision detection ***/
 		/* first detect collision with platform and correct */
