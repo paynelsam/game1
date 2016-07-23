@@ -1,0 +1,17 @@
+DONE	Fix collision detection on right side of character
+	Add support for multiple platforms and characters to level
+	Add Jumping
+	Add shooting
+	Add shot detection
+	Add ability to side-scroll
+	Add game UI
+	Add wrap around on falling
+	Create Enemies
+	Create Enemies AI
+	Create Level Editor
+	Add artwork
+	Add Bosses
+	Add Music
+	Add Controller Support
+	Add second player
+	
