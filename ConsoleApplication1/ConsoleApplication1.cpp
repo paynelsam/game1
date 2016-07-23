@@ -10,9 +10,6 @@
 #include "Input.h"
 #include <SDL_gamecontroller.h>
 
-Keyboard keyboard1;
-
-
 int _tmain(int argc, _TCHAR* argv[])
 {
 	Level level1;
@@ -71,7 +68,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	/* main loop */
 	bool isRunning = true;
-	SDL_Event event;
 	while (isRunning) {
 		previous_t = current_t;
 		current_t = clock();
@@ -79,20 +75,14 @@ int _tmain(int argc, _TCHAR* argv[])
 		/********************************************************
 		* events - input
 		********************************************************/
-		/* loop through all events */
-		keyboard1.event_space_down = false;
-		while (SDL_PollEvent(&event)) {
-			/* if exit, exit */
-			if(event.type == SDL_QUIT)
-				isRunning = false;
-			if(event.type == SDL_KEYUP || event.type == SDL_KEYDOWN) {
-				keyboard1.handle_input(event);
-			}
-		}
 		/********************************************************
 		* game state updates - all units in meters
 		********************************************************/
-		level1.update(keyboard1, delta_t);
+		if (level1.update(delta_t)) {
+			isRunning = false;
+			continue;
+		}
+
 
 		/********************************************************
 		* render to screen - all units in pixels

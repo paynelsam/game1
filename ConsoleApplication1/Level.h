@@ -63,13 +63,14 @@ class Player: public Character {
 		float hit_points;
 		bool invulnerable;
 		bool walking;
+		Player_Keybinding keybinding;
 
 		Player(float mv=12.5) : hit_points(100) {
 			move_velocity = mv;
 			width = PLAYER_WIDTH;
 			height = PLAYER_HEIGHT;
 		}
-		void update(Keyboard keyboard, float dt);
+		void update(float dt);
 };
 
 class Platform {
@@ -100,13 +101,28 @@ public:
 	Level() : gravity((float)100){
 		Player player1;
 		Player player2;
+		/* set initial positions for players */
 		player1.position_x = (float)METERS_PER_WINDOW_WIDTH/2;
 		player1.position_y = (float)METERS_PER_WINDOW_HEIGHT/2;
 		player2.position_x = (float)METERS_PER_WINDOW_WIDTH/2;
 		player2.position_y = (float)METERS_PER_WINDOW_HEIGHT/2;
+		/* set player keybindings */
+		player1.keybinding.move_left = SDLK_LEFT;
+		player1.keybinding.move_right = SDLK_RIGHT;
+		player1.keybinding.jump = SDLK_SPACE;
+		player1.keybinding.move_left_2 = SDLK_LEFT;
+		player1.keybinding.move_right_2 = SDLK_RIGHT;
+		player1.keybinding.jump_2 = SDLK_SPACE;
+
+		player1.keybinding.keyboard_id = 0;
+		player1.keybinding.controller_id = 0;
+
 		players.push_back(player1);
 		players.push_back(player2);
 
+
+
+		/* setup platforms in level */
 		Platform platform1(10, METERS_PER_WINDOW_HEIGHT - 10, 50, PLATFORM_THICKNESS);
 		Platform platform2(10, 10, PLATFORM_THICKNESS, 100) ;
 		Platform platform3(30, METERS_PER_WINDOW_HEIGHT - 15, 10, PLATFORM_THICKNESS);
@@ -115,7 +131,7 @@ public:
 		platforms.push_back(platform3);
 	}
 
-	void update(Keyboard keyboard, float dt);
+	int update(float dt);
 	void render(SDL_Renderer* renderer);
 };
 

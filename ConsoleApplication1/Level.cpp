@@ -34,31 +34,27 @@ void Character::update(float dt) {
 	position_y += y_velocity * dt;
 }
 
-void Player::update(Keyboard keyboard, float dt) {
+void Player::update(float dt) {
 	/* update player input for movement */
-	if(keyboard.key_left_down && !keyboard.key_right_down) 
+	if(keybinding.move_left_down && !keybinding.move_right_down) {
 		x_velocity = -move_velocity;
-	else if(keyboard.key_right_down && !keyboard.key_left_down)
+	}
+	else if(keybinding.move_right_down && !keybinding.move_left_down)
 		x_velocity = move_velocity;
 	else
 		x_velocity = 0;
 
-	if(keyboard.event_space_down) {
+	if(keybinding.jump_down_event) {
 		if (double_jumping)
 			goto jumping_done;
 		else if (jumping) {
 			double_jumping = true;
+			printf("double jumping\n");
 		} else {
 			jumping = true;
 		}
 
 		y_velocity = -30;
-		/*
-		if (wall_sliding_left)
-		x_velocity = move_velocity*3;
-		if (wall_sliding_right)
-		x_velocity = -move_velocity*3;
-		*/
 	}
 jumping_done:
 	Character::update(dt);
@@ -202,12 +198,26 @@ Collision2D Platform::find_line_intersect (float x1, float y1, float x0, float y
 	return ret;
 }
 
-void Level::update(Keyboard keyboard, float dt) {
+int Level::update(float dt) {
+	/* reset events for players */
+	for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
+		player->keybinding.jump_down_event = false;
+	}
+	/* poll keybindings for each player and update */
+	SDL_Event event;
+	while (SDL_PollEvent(&event)) {
+		if(event.type == SDL_QUIT)
+			return -1;
+		for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
+			player->keybinding.handle_input(event);
+		}
+	}
+
 	/* perform global updates */
 	for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
 		player->y_velocity += gravity * dt;
 		/* perform non-static updates */
-		player->update(keyboard, dt);
+		player->update(dt);
 	}
 
 	/* check for static to non-static collisions */
@@ -221,6 +231,8 @@ void Level::update(Keyboard keyboard, float dt) {
 	}
 
 	/* check for sprite to non-static collisions */
+
+	return 0;
 }
 
 void Level::render(SDL_Renderer* renderer) {
