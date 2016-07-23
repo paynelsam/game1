@@ -8,6 +8,7 @@
 #include "Level.h"
 #include "Common.h"
 #include "Input.h"
+#include <SDL_gamecontroller.h>
 
 Keyboard keyboard1;
 
@@ -32,12 +33,24 @@ int _tmain(int argc, _TCHAR* argv[])
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1);
 
 	/* set window caption */
-	SDL_WM_SetCaption("My First Game", NULL);
+	//SDL_WM_SetCaption("My First Game", NULL);
 
 	/* set window size and color depth */
-	SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, SDL_OPENGL);
+	//SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, SDL_OPENGL);
 
+	SDL_Window *screen = SDL_CreateWindow("My First Game",
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
+		WINDOW_WIDTH, WINDOW_HEIGHT,
+		SDL_WINDOW_OPENGL);
+	SDL_Renderer* renderer = SDL_CreateRenderer(screen, -1, 0);
+
+
+	// Up until now everything was drawn behind the scenes.
+	// This will show the new, red contents of the window.
+	SDL_RenderPresent(renderer);
 	/* color is used when the screen is cleared */
+
 	glClearColor(1,1,1,1); //white
 	/* set the par tof the screen to be displayed */
 	glViewport(0,0,WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -48,8 +61,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	glLoadIdentity(); //save gl config
 	glDisable(GL_DEPTH_TEST);
 
-	/* setup game state */
+	/* open all controllers */
+	for (int i = 0; i < SDL_NumJoysticks(); i++) {
+		if (SDL_IsGameController(i))
+			SDL_GameControllerOpen(i);
+	}
 
+	/* setup game state */
 
 	/* main loop */
 	bool isRunning = true;
@@ -76,47 +94,23 @@ int _tmain(int argc, _TCHAR* argv[])
 		********************************************************/
 		level1.update(keyboard1, delta_t);
 
-		/*** collision detection ***/
-		/* first detect collision with platform and correct */
-
-
-		/* next detect collision with projectile and subtract health */
-
 		/********************************************************
 		* render to screen - all units in pixels
 		********************************************************/
 		/* clear screen */
-		glClear(GL_COLOR_BUFFER_BIT);
+		SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
 
-		glPushMatrix(); /* start rendering */
+		// Clear the entire screen to our selected color.
+		SDL_RenderClear(renderer);
+
+		level1.render(renderer);
+
+		SDL_RenderPresent(renderer);
+		
 		/* adjust matrix to window dimensions */
-		glOrtho(0, METERS_PER_WINDOW_WIDTH, METERS_PER_WINDOW_HEIGHT, 0, -1, 1);
+		//glOrtho(0, METERS_PER_WINDOW_WIDTH, METERS_PER_WINDOW_HEIGHT, 0, -1, 1);
 
-		level1.render();
-
-#if 0
-		glBegin(GL_LINES); //GL_POINT, GL_LINE, GL_LINE_STRIP, GL_LINE_LOOP, GL_QUADS, GL_TRIANGLES, GL_POLLYGON
-		{
-			glColor4ub(0, 0, 255, 255); //could do 3ub and not specify alpha		
-			glVertex2f(0,0); //2 for 2-dimension, f for fload
-			glVertex2f(WINDOW_WIDTH, WINDOW_HEIGHT); //2 for 2-dimension, f for fload		
-		}	
-		glEnd(); //done defining shape
-
-		glBegin(GL_QUADS); //GL_POINT, GL_LINE, GL_LINE_STRIP, GL_LINE_LOOP, GL_QUADS, GL_TRIANGLES, GL_POLLYGON
-		{
-			glColor4ub(0, 255, 0, 255); //could do 3ub and not specify alpha		
-			glVertex2f(WINDOW_WIDTH*3/4,WINDOW_HEIGHT*3/4); 
-			glVertex2f(WINDOW_WIDTH*0,WINDOW_HEIGHT*4/4); 
-			glColor4ub(0, 255, 255, 0); //could do 3ub and not specify alpha		
-			glVertex2f(WINDOW_WIDTH*1/4,WINDOW_HEIGHT*1/4); 
-			glVertex2f(WINDOW_WIDTH*3/4, WINDOW_HEIGHT*1/4); 
-		}	
-		glEnd(); //done defining shape
-#endif
-		glPopMatrix(); /* end rendering */
-
-		SDL_GL_SwapBuffers();
+		SDL_GL_SwapWindow(screen);
 	}
 
 	//SDL_Delay(5000); //Milliseconds

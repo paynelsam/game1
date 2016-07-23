@@ -7,20 +7,24 @@
 
 #define SMALL_DELTA (float)0.00001
 
-void render_rectangle(float x, float y, float width, float height, unsigned char R, unsigned char G, unsigned char B, unsigned char A) {
+void render_rectangle(SDL_Renderer* renderer, float x, float y, float width, float height, unsigned char R, unsigned char G, unsigned char B, unsigned char A) {
 	glBegin(GL_QUADS); //GL_POINT, GL_LINE, GL_LINE_STRIP, GL_LINE_LOOP, GL_QUADS, GL_TRIANGLES, GL_POLLYGON
 	{
-		glColor4ub(R, G, B, A); //could do 3ub and not specify alpha		
-		glVertex2f(x, y); 
-		glVertex2f(x, y + height); 
-		glVertex2f(x + width, y + height); //could do 3ub and not specify alpha		
-		glVertex2f(x + width, y); 
+		/* scale from meters to pixels */
+		SDL_SetRenderDrawColor(renderer, R, G, B, A);
+		SDL_Rect rect = {
+			(int)(x*PIXELS_PER_METER), 
+			(int)(y *PIXELS_PER_METER), 
+			(int)(width *PIXELS_PER_METER), 
+			(int)(height * PIXELS_PER_METER) };
+		SDL_RenderFillRect(renderer, &rect);
+		
 	}	
 	glEnd(); //done defining shape
 }
 
-void Character::render(void){
-	render_rectangle(position_x, position_y, width, height, 255, 150, 150, 255);
+void Character::render(SDL_Renderer* renderer){
+	render_rectangle(renderer, position_x, position_y, width, height, 255, 150, 150, 255);
 };
 
 void Character::update(float dt) {
@@ -40,7 +44,6 @@ void Player::update(Keyboard keyboard, float dt) {
 		x_velocity = 0;
 
 	if(keyboard.event_space_down) {
-		printf("keyboard_event_space\n");
 		if (double_jumping)
 			goto jumping_done;
 		else if (jumping) {
@@ -48,8 +51,6 @@ void Player::update(Keyboard keyboard, float dt) {
 		} else {
 			jumping = true;
 		}
-
-		printf("keyboard_event_space_update\n");
 
 		y_velocity = -30;
 		/*
@@ -64,8 +65,8 @@ jumping_done:
 	return;
 }
 
-void Platform::render(void) {
-	render_rectangle(position_x, position_y, width, height, 150, 150, 150, 255);
+void Platform::render(SDL_Renderer* renderer) {
+	render_rectangle(renderer, position_x, position_y, width, height, 150, 150, 150, 255);
 }
 Collision2D Platform::check_collision(Character* character) {
 	float bx = position_x;
@@ -212,11 +213,11 @@ void Level::update(Keyboard keyboard, float dt) {
 	/* check for sprite to non-static collisions */
 }
 
-void Level::render(void) {
+void Level::render(SDL_Renderer* renderer) {
 	for (std::vector<Player>::iterator player = players.begin(); player != players.end(); player++) {
-		player->render();
+		player->render(renderer);
 	}
 	for (std::vector<Platform>::iterator platform = platforms.begin(); platform != platforms.end(); platform++) {
-		platform->render();
+		platform->render(renderer);
 	}
 }

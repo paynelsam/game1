@@ -50,7 +50,7 @@ class Character {
 			wall_sliding_left(false),
 			wall_sliding_right(false)
 		{}
-		void render(void);
+		void render(SDL_Renderer* renderer);
 		void update(float dt);
 };
 
@@ -80,7 +80,7 @@ public:
 		width = w;
 		height = h;
 	}
-	void render(void);
+	void render(SDL_Renderer* renderer);
 	Collision2D check_collision(Character* player);
 	Collision2D find_point_intersect(float x, float y);
 	Collision2D find_line_intersect (float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
@@ -110,7 +110,7 @@ public:
 	}
 
 	void update(Keyboard keyboard, float dt);
-	void render(void);
+	void render(SDL_Renderer* renderer);
 };
 
 #endif
