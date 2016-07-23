@@ -23,6 +23,9 @@ void Keyboard::handle_input(SDL_Event event) {
 		case SDLK_UP:
 			key_up_down = false;
 			break;
+		case SDLK_SPACE:
+			key_space_down = true;
+			break;
 		}
 	}
 	if(event.type == SDL_KEYDOWN) {
@@ -35,6 +38,10 @@ void Keyboard::handle_input(SDL_Event event) {
 			break; 
 		case SDLK_UP:
 			key_up_down = true;
+			break;
+		case SDLK_SPACE:
+			key_space_down = true;
+			event_space_down = true;
 			break;
 		}
 	}

@@ -1,6 +1,7 @@
 DONE	Fix collision detection on right side of character
 	Add support for multiple platforms and characters to level
-	Add Jumping
+DONE	Add Jumping
+	Add Wall-jumping
 	Add shooting
 	Add shot detection
 	Add ability to side-scroll

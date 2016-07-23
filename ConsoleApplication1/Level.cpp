@@ -28,70 +28,118 @@ void Character::update(float dt) {
 	position_y += y_velocity * dt;
 }
 
+void Player::update(Keyboard keyboard, float dt) {
+	/* update player input for movement */
+	if(keyboard.key_left_down && !keyboard.key_right_down) 
+		x_velocity = -move_velocity;
+	else if(keyboard.key_right_down && !keyboard.key_left_down)
+		x_velocity = move_velocity;
+	else
+		x_velocity = 0;
+
+	if(keyboard.event_space_down) {
+		printf("keyboard_event_space\n");
+		if (double_jumping)
+			goto jumping_done;
+		else if (jumping) {
+			double_jumping = true;
+		} else {
+			jumping = true;
+		}
+
+		printf("keyboard_event_space_update\n");
+
+		y_velocity = -30;
+		/*
+		if (wall_sliding_left)
+			x_velocity = move_velocity*3;
+		if (wall_sliding_right)
+			x_velocity = -move_velocity*3;
+			*/
+	}
+jumping_done:
+	Character::update(dt);
+	return;
+}
+
 void Platform::render(void) {
 	render_rectangle(position_x, position_y, width, height, 150, 150, 150, 255);
 }
-Collision2D Platform::check_collision(Character* player) {
+Collision2D Platform::check_collision(Character* character) {
 	float bx = position_x;
 	float by = position_y;
 	float bw = width;
 	float bh = height;
-	float px = player->position_x;
-	float py = player->position_y;
-	float pw = player->width;
-	float ph = player->height;
+	float px = character->position_x;
+	float py = character->position_y;
+	float pw = character->width;
+	float ph = character->height;
 	Collision2D ret(false, 0, 0);
 
 	if (!(bx < px + pw && bx + bw > px && by < py + ph && by + bh > py)) {
+		character->wall_sliding_right = false;
+		character->wall_sliding_left = false;
 		return ret;
 	}
 
 	/* check top line with bottom points */
-	ret = find_line_intersect(px, py + ph, player->prev_x, player->prev_y + ph, bx, by, bx+bw, by);
+	ret = find_line_intersect(px, py + ph, character->prev_x, character->prev_y + ph, bx, by, bx+bw, by);
 	if (ret.collision) {
-		player->position_y = by-ph;
-		player->y_velocity = 0;
+		character->position_y = by-ph;
+		character->y_velocity = 0;
+		character->wall_sliding_right = false;
+		character->wall_sliding_left = false;
 		return ret;
 	}
-	ret = find_line_intersect(px + pw, py + ph, player->prev_x + pw, player->prev_y + ph, bx, by, bx+bw, by);
+	ret = find_line_intersect(px + pw, py + ph, character->prev_x + pw, character->prev_y + ph, bx, by, bx+bw, by);
 	if (ret.collision) {
-		player->position_y = by-ph;
-		player->y_velocity = 0;
+		character->position_y = by-ph;
+		character->y_velocity = 0;
+		character->wall_sliding_right = false;
+		character->wall_sliding_left = false;
 		return ret;
 	}
 	/* check bottom line with top points */
-	ret = find_line_intersect(px, py, player->prev_x, player->prev_y, bx, by + bh, bx+bw, by + bh);
+	ret = find_line_intersect(px, py, character->prev_x, character->prev_y, bx, by + bh, bx+bw, by + bh);
 	if (ret.collision) {
-		player->position_y = by+bh;
-		player->y_velocity = 0;
+		character->position_y = by+bh;
+		character->y_velocity = 0;
+		character->wall_sliding_right = false;
+		character->wall_sliding_left = false;
 		return ret;
 	}
-	ret = find_line_intersect(px+pw, py, player->prev_x + pw, player->prev_y, bx, by + bh, bx+bw, by + bh);
+	ret = find_line_intersect(px+pw, py, character->prev_x + pw, character->prev_y, bx, by + bh, bx+bw, by + bh);
 	if (ret.collision) {
-		player->position_y = by+bh;
-		player->y_velocity = 0;
+		character->position_y = by+bh;
+		character->y_velocity = 0;
+		character->wall_sliding_right = false;
+		character->wall_sliding_left = false;
 		return ret;
 	}
 	/* check left line with right points */
-	ret = find_line_intersect(px + pw, py, player->prev_x + pw, player->prev_y, bx, by, bx, by + bh);
+	ret = find_line_intersect(px + pw, py, character->prev_x + pw, character->prev_y, bx, by, bx, by + bh);
 	if (ret.collision) {
-		player->position_x = bx - pw;
+		character->position_x = bx - pw;
+		character->wall_sliding_right = true;
 		return ret;
 	}
-	ret = find_line_intersect(px + pw, py + ph, player->prev_x + pw, player->prev_y + ph, bx, by, bx, by + bh);
+	ret = find_line_intersect(px + pw, py + ph, character->prev_x + pw, character->prev_y + ph, bx, by, bx, by + bh);
 	if (ret.collision) {
-		player->position_x = bx - pw;
+		character->position_x = bx - pw;
+		character->wall_sliding_right = true;
 		return ret;
 	}
 	/* check right line with left points */
-	ret = find_line_intersect(px, py, player->prev_x, player->prev_y, bx + bw, by, bx + bw, by + bh);
+	ret = find_line_intersect(px, py, character->prev_x, character->prev_y, bx + bw, by, bx + bw, by + bh);
 	if (ret.collision) {
-		player->position_x = bx + bw;
+		character->position_x = bx + bw;
+		character->wall_sliding_left = true;
 		return ret;
 	}
-	ret = find_line_intersect(px, py + ph, player->prev_x, player->prev_y + ph, bx + bw, by, bx + bw, by + bh);
+	ret = find_line_intersect(px, py + ph, character->prev_x, character->prev_y + ph, bx + bw, by, bx + bw, by + bh);
 	if (ret.collision) {
-		player->position_x = bx + bw;
+		character->position_x = bx + bw;
+		character->wall_sliding_left = true;
 		return ret;
 	}
 	return ret;
@@ -141,21 +189,18 @@ Collision2D Platform::find_line_intersect (float x1, float y1, float x2, float y
 }
 
 void Level::update(Keyboard keyboard, float dt) {
-	if(keyboard.key_left_down && !keyboard.key_right_down) 
-		player1.x_velocity = -1 * player1.move_velocity;
-	else if(keyboard.key_right_down && !keyboard.key_left_down)
-		player1.x_velocity = player1.move_velocity;
-	else
-		player1.x_velocity = 0;
-
 	/* perform global updates */
 	player1.y_velocity += gravity * dt;
 
 	/* perform non-static updates */
-	player1.update(dt);
+	player1.update(keyboard, dt);
 
 	/* check for static to non-static collisions */
 	Collision2D c = platform1.check_collision(&player1);
-
+	if(c.collision) {
+		player1.double_jumping = false;
+		player1.jumping = false;
+		player1.y_velocity = player1.y_velocity < 5 ? player1.y_velocity : 5;
+	}
 	/* check for sprite to non-static collisions */
 }

@@ -37,6 +37,18 @@ class Character {
 		float height;//width in meters
 		float move_velocity; //meters/second
 		float x_velocity;
+		bool jumping;
+		bool double_jumping;
+		bool wall_sliding_right;
+		bool wall_sliding_left;
+		Character(void) : 
+			x_velocity(0), 
+			y_velocity(0), 
+			jumping(false), 
+			double_jumping(false),
+			wall_sliding_left(false),
+			wall_sliding_right(false)
+		{}
 		void render(void);
 		void update(float dt);
 };
@@ -45,14 +57,14 @@ class Player: public Character {
 	public:
 		float hit_points;
 		bool invulnerable;
-		bool falling;
 		bool walking;
-		bool jumping;
+
 		Player(float mv=12.5) : hit_points(100) {
 			move_velocity = mv;
 			width = 1;
 			height = 3;
 		}
+		void update(Keyboard keyboard, float dt);
 };
 
 class Platform {
@@ -78,7 +90,7 @@ public:
 	Player player2;
 	Platform platform1;
 	float gravity;
-	Level() : gravity((float)9.8), platform1(10, METERS_PER_WINDOW_HEIGHT - 10, 50, 10) {
+	Level() : gravity((float)100), platform1(10, METERS_PER_WINDOW_HEIGHT - 10, 50, 10) {
 		player1.position_x = (float)METERS_PER_WINDOW_WIDTH/2;
 		player1.position_y = (float)METERS_PER_WINDOW_HEIGHT/2;
 	}

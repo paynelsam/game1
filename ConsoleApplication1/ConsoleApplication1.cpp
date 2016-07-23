@@ -62,6 +62,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		* events - input
 		********************************************************/
 		/* loop through all events */
+		keyboard1.event_space_down = false;
 		while (SDL_PollEvent(&event)) {
 			/* if exit, exit */
 			if(event.type == SDL_QUIT)
