@@ -9,6 +9,10 @@
 #ifndef HEADER_LEVEL
 #define HEADER_LEVEL
 
+#define PLAYER_HEIGHT 2
+#define PLAYER_WIDTH 1
+#define PLATFORM_THICKNESS 2
+
 class Point2D {
 public:
 	float x;
@@ -62,8 +66,8 @@ class Player: public Character {
 
 		Player(float mv=12.5) : hit_points(100) {
 			move_velocity = mv;
-			width = 1;
-			height = 3;
+			width = PLAYER_WIDTH;
+			height = PLAYER_HEIGHT;
 		}
 		void update(Keyboard keyboard, float dt);
 };
@@ -91,12 +95,9 @@ public:
 	std::vector<Player> players;
 	std::vector<Character> characters;
 	std::vector<Platform> platforms;
-	Platform platform1;
-	Platform platform2;
-
 	float gravity;
 
-	Level() : gravity((float)100), platform1(10, METERS_PER_WINDOW_HEIGHT - 10, 50, 1), platform2(10, 10, 1, 100) {
+	Level() : gravity((float)100){
 		Player player1;
 		Player player2;
 		player1.position_x = (float)METERS_PER_WINDOW_WIDTH/2;
@@ -105,8 +106,13 @@ public:
 		player2.position_y = (float)METERS_PER_WINDOW_HEIGHT/2;
 		players.push_back(player1);
 		players.push_back(player2);
+
+		Platform platform1(10, METERS_PER_WINDOW_HEIGHT - 10, 50, PLATFORM_THICKNESS);
+		Platform platform2(10, 10, PLATFORM_THICKNESS, 100) ;
+		Platform platform3(30, METERS_PER_WINDOW_HEIGHT - 15, 10, PLATFORM_THICKNESS);
 		platforms.push_back(platform1);
 		platforms.push_back(platform2);
+		platforms.push_back(platform3);
 	}
 
 	void update(Keyboard keyboard, float dt);
